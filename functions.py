@@ -221,7 +221,7 @@ def plot_topic_evolution(hl,t,corpus,element,topic_memb,path):
             ax[i].set_xticks(years)
             ax[i].set_xticklabels(years,rotation=45)
         ax[0].set_title('Topic importance evolution')
-        ax[1].set_title('Sub-Topics (level '+str(hl)+') importance evolution')
+        ax[1].set_title('Sub-Topics (level '+str(hl-1)+') importance evolution')
         plt.show() 
     else:
         print('There are '+str(len(p_t_y))+' topics at level '+str(hl)+'. Topic should be within this range.')
