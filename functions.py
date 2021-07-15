@@ -95,75 +95,75 @@ def get_element_topic_info(e,topic_memb,memberships_df,element_list,element,corp
     else:
         print('The element '+e+' was not found, try again.')  
         
-def topic_years_distribution(Y,corpus,element,l,df,path_data,add_pseudo_counts=False):
-    '''
-    In:
-        - Y (a list of integers) natural years list (contiguous)
-        - corpus (string), label for corpus of documents
-        - element (string), words: 'w', articles: 'a', keywords: 'kw'
-        - df (pandas DataFrame) should contain the columns: 'date_years', 'idx' and the decision ids as indices of the DF
-        - add_pseudo_counts (optional)  
-    Out: 
-        - A 2D numpy array of dimension number of topics x number of years. For each row (topic) the distribution over 
-        the years. 
+# def topic_years_distribution(Y,corpus,element,l,df,path_data,add_pseudo_counts=False):
+#     '''
+#     In:
+#         - Y (a list of integers) natural years list (contiguous)
+#         - corpus (string), label for corpus of documents
+#         - element (string), words: 'w', articles: 'a', keywords: 'kw'
+#         - df (pandas DataFrame) should contain the columns: 'date_years', 'idx' and the decision ids as indices of the DF
+#         - add_pseudo_counts (optional)  
+#     Out: 
+#         - A 2D numpy array of dimension number of topics x number of years. For each row (topic) the distribution over 
+#         the years. 
         
-    The function computes the distribution of topics in each year and then transposes the result. Hence, the normalizations 
-    are over topics and not over years.
+#     The function computes the distribution of topics in each year and then transposes the result. Hence, the normalizations 
+#     are over topics and not over years.
     
-    When add_pseudo_counts=true, the distribution over topics for each specific year is modified according the add_pseudocunts 
-    function
-    ''' 
+#     When add_pseudo_counts=true, the distribution over topics for each specific year is modified according the add_pseudocunts 
+#     function
+#     ''' 
     
-    p_d_te=get_distributions_data(corpus,element,'docs-topics',l,path_data)  
+#     p_d_te=get_distributions_data(corpus,element,'docs-topics',l,path_data)  
     
-    p_y_t=[]
-    for y in Y:
-        dist,N=topic_distribution_time_interval((y,y+1),p_d_te,df)
-        if add_pseudo_counts:
-            dist=add_pseudocounts(dist,Nw*N)
-            p_y_t.append(dist)
-        else:
-            p_y_t.append(dist)
+#     p_y_t=[]
+#     for y in Y:
+#         dist,N=topic_distribution_time_interval((y,y+1),p_d_te,df)
+#         if add_pseudo_counts:
+#             dist=add_pseudocounts(dist,Nw*N)
+#             p_y_t.append(dist)
+#         else:
+#             p_y_t.append(dist)
 
-    p_t_y=np.transpose(np.array(p_y_t))     
+#     p_t_y=np.transpose(np.array(p_y_t))     
     
-    return p_t_y 
+#     return p_t_y 
 
-def topic_distribution_time_interval(y,p_d_te,df):
-    '''
-    In:
-        - y (tuple, 2 values), time limits in years.
-        - p_d_te (numpy array of dimension 2: number of decisions x number of topic-elements), at each row (for each decision)
-          the distribution over topics.
-        - df (pandas DataFrame) should contain the columns: 'date_years', 'idx' and the decision ids as indices of the DF
-    Out: 
-        - d_mean: mean distribution of topics a long decisions in the time interval given. numpy array of size the number 
-          of topics. 
-        - An integer: the number of decisions used to compute the mean
+# def topic_distribution_time_interval(y,p_d_te,df):
+#     '''
+#     In:
+#         - y (tuple, 2 values), time limits in years.
+#         - p_d_te (numpy array of dimension 2: number of decisions x number of topic-elements), at each row (for each decision)
+#           the distribution over topics.
+#         - df (pandas DataFrame) should contain the columns: 'date_years', 'idx' and the decision ids as indices of the DF
+#     Out: 
+#         - d_mean: mean distribution of topics a long decisions in the time interval given. numpy array of size the number 
+#           of topics. 
+#         - An integer: the number of decisions used to compute the mean
     
-    The function computes the mean over all decisions topic distributions in a time interval
-    '''
+#     The function computes the mean over all decisions topic distributions in a time interval
+#     '''
         
-    decisions=df.loc[(df.date_years>y[0]) & (df.date_years<=y[1])].index
-#     print(decisions)
+#     decisions=df.loc[(df.date_years>y[0]) & (df.date_years<=y[1])].index
+# #     print(decisions)
     
-    dists=[]
-    nan_count=0
-    for d in decisions:
-        idx=df.loc[d].idx
-        #print(idx)
-        if np.isnan(p_d_te[idx][0]):
-            nan_count+=1
-        else:
-            dists.append(p_d_te[idx])
-#         print(d)
-#         print(p_d_tw[idx])    
-#         print(' ')
-    d_mean=np.mean(dists,axis=0)    
-    return d_mean,len(decisions)-nan_count
+#     dists=[]
+#     nan_count=0
+#     for d in decisions:
+#         idx=df.loc[d].idx
+#         #print(idx)
+#         if np.isnan(p_d_te[idx][0]):
+#             nan_count+=1
+#         else:
+#             dists.append(p_d_te[idx])
+# #         print(d)
+# #         print(p_d_tw[idx])    
+# #         print(' ')
+#     d_mean=np.mean(dists,axis=0)    
+#     return d_mean,len(decisions)-nan_count
 
 
-def get_topic_common_decisions(t,hl,d_df,element,corpus,path='./topic_model_data/',Nd=10):
+def get_topic_common_decisions(t,hl,d_list,element,corpus,path='./topic_model_data/',Nd=10):
     p_d_te=get_distributions_data(corpus,element,'docs-topics',hl,path)
     if t>len(p_d_te[0]) or t<0:
         print('There are '+str(len(p_t_y))+' topics at level '+str(hl)+'. Topic should be within this range.')
@@ -173,7 +173,7 @@ def get_topic_common_decisions(t,hl,d_df,element,corpus,path='./topic_model_data
         top_d_idx=(-p_te_d[t]).argsort()[:Nd]
         
         print('Decisions where topic '+str(t)+' (level '+str(hl)+') appears the most:')
-        for d in list(d_df.iloc[top_d_idx].index):
+        for d in d_list[top_d_idx]:
             print('TOL_'+str(d))
             
             
